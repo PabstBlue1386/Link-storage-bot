@@ -67,5 +67,10 @@ func (storage *Storage) Add(link Link) (Link, error) {
 
 	storage.Links = append(storage.Links, link)
 	storage.NextID++
+
 	return link, nil
+}
+
+func (s *Storage) List() []Link {
+	return s.Links
 }
