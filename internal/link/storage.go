@@ -1,7 +1,10 @@
 package link
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
 	"strings"
 	"time"
 )
@@ -71,6 +74,40 @@ func (storage *Storage) Add(link Link) (Link, error) {
 	return link, nil
 }
 
-func (s *Storage) List() []Link {
-	return s.Links
+func (storage *Storage) List() []Link {
+	return storage.Links
+}
+
+func (storage *Storage) Save(path string) error {
+	if storage == nil {
+		return fmt.Errorf("emtpy storage")
+	}
+
+	data, err := json.MarshalIndent(storage, "", "  ")
+	if err != nil {
+		return fmt.Errorf("error converting to byte %s\n", err)
+	}
+
+	err = os.WriteFile(path, data, 0644)
+	if err != nil {
+		return fmt.Errorf("error writing to file%s\n", err)
+	}
+
+	return nil
+}
+
+func (storage Storage) Load(path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("file not exist%s\n", err)
+		}
+		return fmt.Errorf("failed to read file%s\n", err)
+	}
+	err = json.Unmarshal(data, &storage)
+	if err != nil {
+		return fmt.Errorf("error unmarhsal data%s\n", err)
+	}
+
+	return nil
 }
